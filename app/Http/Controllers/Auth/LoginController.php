@@ -50,7 +50,7 @@ class LoginController extends Controller
             $request->session()->regenerate();
             session()->forget('captcha');
 
-            alert()->success('Berhasil', 'Selamat datang, ' . Auth::user()->name . '!');
+            session()->flash('success', 'Selamat datang, ' . Auth::user()->name . '!');
             return redirect()->intended(route('dashboard'));
         }
 
@@ -73,7 +73,7 @@ class LoginController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        alert()->success('Berhasil', 'Anda telah berhasil logout. Sampai jumpa, ' . $userName . '!');
+        session()->flash('success', 'Anda telah berhasil logout. Sampai jumpa, ' . $userName . '!');
         return redirect()->route('login');
     }
 

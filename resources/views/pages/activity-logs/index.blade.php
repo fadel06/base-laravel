@@ -1,9 +1,9 @@
-@extends('layouts.app')
+@extends('layouts.app', ['title' => 'Log Aktivitas'])
 
 @section('content')
     <x-common.page-breadcrumb pageTitle="Log Aktivitas" />
 
-    <div class="min-h-screen rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
+    <div class="min-h-screen rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/3">
 
         <!-- Header Section -->
         <div class="border-b border-gray-200 px-5 py-6 dark:border-gray-800 xl:px-10">
@@ -226,7 +226,9 @@
                     icon: 'success',
                     title: 'Berhasil!',
                     text: @json(session('success')),
-                    showConfirmButton: true,
+                    showConfirmButton: false,
+                    timer: 2000,
+                    timerProgressBar: true
                 });
             @endif
 

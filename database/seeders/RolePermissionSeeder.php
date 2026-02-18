@@ -45,6 +45,9 @@ class RolePermissionSeeder extends Seeder
             'opds' => [
                 'extra' => []
             ],
+            'bidang-dinas' => [
+                'extra' => []
+            ],
         ];
 
         /*

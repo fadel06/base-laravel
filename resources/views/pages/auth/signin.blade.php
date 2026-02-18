@@ -27,7 +27,7 @@
                         <div
                             class="mb-4 rounded-lg bg-red-50 p-4 text-sm text-red-800 dark:bg-red-900/20 dark:text-red-400 border border-red-200 dark:border-red-800">
                             <div class="flex items-center gap-2">
-                                <svg class="h-4 w-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                <svg class="h-4 w-4 shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd"
                                         d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
                                         clip-rule="evenodd" />
@@ -41,7 +41,7 @@
                         <div
                             class="mb-4 rounded-lg bg-green-50 p-4 text-sm text-green-800 dark:bg-green-900/20 dark:text-green-400 border border-green-200 dark:border-green-800">
                             <div class="flex items-center gap-2">
-                                <svg class="h-4 w-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                <svg class="h-4 w-4 shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd"
                                         d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
                                         clip-rule="evenodd" />
@@ -74,7 +74,7 @@
                                     <input type="email" value="{{ old('login_email') }}" name="login_email"
                                         autocomplete="new-email" autocorrect="off" autocapitalize="off" spellcheck="false"
                                         placeholder="nama@bantenprov.go.id" autofocus
-                                        class="shadow-theme-xs focus:border-brand-500 focus:ring-brand-500/10 h-11 w-full rounded-lg border border-gray-300 bg-transparent pl-10 pr-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 @error('email') border-red-500 @enderror" />
+                                        class="shadow-theme-xs focus:border-brand-500 focus:ring-brand-500/10 h-11 w-full rounded-lg border border-gray-300 bg-transparent pl-10 pr-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 @error('login_email') border-red-500 @enderror" />
                                 </div>
                                 @error('login_email')
                                     <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
@@ -144,8 +144,7 @@
                                         </svg>
                                     </button>
                                 </div>
-                                <input type="text" name="captcha" placeholder="Ketik kode di atas"
-                                    autocomplete="off"
+                                <input type="text" name="captcha" placeholder="Ketik kode di atas" autocomplete="off"
                                     class="mt-2 shadow-theme-xs focus:border-brand-500 focus:ring-brand-500/10 h-11 w-full rounded-lg border bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 @error('captcha') border-red-500 @enderror" />
                                 @error('captcha')
                                     <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
@@ -203,7 +202,7 @@
 
             {{-- ===== RIGHT SIDE - BRANDING ===== --}}
             <div
-                class="relative hidden min-h-screen w-full items-center justify-center bg-gradient-to-br from-brand-600 to-brand-800 lg:flex lg:w-1/2">
+                class="relative hidden min-h-screen w-full items-center justify-center bg-linear-to-br from-brand-600 to-brand-800 lg:flex lg:w-1/2">
                 <div class="relative z-10 flex items-center justify-center">
                     {{-- Grid Pattern --}}
                     <x-common.common-grid-shape />
@@ -225,7 +224,7 @@
                         {{-- Feature Highlights --}}
                         <div class="mt-8 grid w-full grid-cols-1 gap-3">
                             <div class="flex items-center gap-3 rounded-xl bg-white/10 px-4 py-3 backdrop-blur-sm">
-                                <div class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-white/20">
+                                <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white/20">
                                     <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor"
                                         viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -269,27 +268,53 @@
 
 @push('scripts')
     <script>
-        document.getElementById('refreshCaptchaBtn').addEventListener('click', function() {
-            const btn = this;
-            btn.classList.add('animate-spin');
+        document.addEventListener('DOMContentLoaded', function() {
 
-            fetch("{{ route('captcha.refresh') }}", {
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
-                            'content')
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    document.querySelector('.captcha-display').textContent = data.captcha;
-                    // Clear captcha input
-                    document.querySelector('input[name="captcha"]').value = '';
-                })
-                .catch(err => console.error('Gagal refresh captcha:', err))
-                .finally(() => {
-                    btn.classList.remove('animate-spin');
+            // ============ SWEETALERT2 SESSION ALERTS ============
+            @if (session('success'))
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil!',
+                    text: @json(session('success')),
+                    showConfirmButton: false,
+                    timer: 2500,
+                    timerProgressBar: true
                 });
+            @endif
+
+            @if (session('error'))
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal!',
+                    text: @json(session('error')),
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#465FFF'
+                });
+            @endif
+
+            // ============ REFRESH CAPTCHA ============
+            document.getElementById('refreshCaptchaBtn').addEventListener('click', function() {
+                const btn = this;
+                btn.classList.add('animate-spin');
+
+                fetch("{{ route('captcha.refresh') }}", {
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                .getAttribute('content')
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        document.querySelector('.captcha-display').textContent = data.captcha;
+                        document.querySelector('input[name="captcha"]').value = '';
+                    })
+                    .catch(err => console.error('Gagal refresh captcha:', err))
+                    .finally(() => {
+                        btn.classList.remove('animate-spin');
+                    });
+            });
+
         });
     </script>
 @endpush

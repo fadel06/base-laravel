@@ -1,27 +1,28 @@
-@extends('layouts.app', ['title' => 'Wilayah'])
+@extends('layouts.app', ['title' => 'Bidang Dinas'])
 
 @section('content')
-    <x-common.page-breadcrumb pageTitle="Manajemen Wilayah" />
+    <x-common.page-breadcrumb pageTitle="Manajemen Bidang Dinas" />
 
     <div class="min-h-screen rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/3">
+
         <!-- Header Section -->
         <div class="border-b border-gray-200 px-5 py-6 dark:border-gray-800 xl:px-10">
             <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                     <h3 class="font-semibold text-gray-800 text-theme-xl dark:text-white/90 sm:text-2xl">
-                        Wilayah
+                        Bidang Dinas
                     </h3>
                     <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                        Manajemen data wilayah (Provinsi, Kab/Kota, Kecamatan, Kelurahan/Desa)
+                        Kelola data bidang dan sub bidang per OPD
                     </p>
                 </div>
-                @can('create-regions')
-                    <button type="button" id="btnAddRegion"
+                @can('create-bidang-dinas')
+                    <button type="button" id="btnAddBidang"
                         class="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900">
                         <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                         </svg>
-                        Tambahkan Wilayah
+                        Tambah Bidang
                     </button>
                 @endcan
             </div>
@@ -29,40 +30,50 @@
 
         <!-- Filters Section -->
         <div class="border-b border-gray-200 px-5 py-4 dark:border-gray-800 xl:px-10">
-            <form method="GET" action="{{ route('regions.index') }}" class="flex flex-col gap-3 sm:flex-row sm:items-end">
+            <form method="GET" action="{{ route('bidang-dinas.index') }}"
+                class="flex flex-col gap-3 sm:flex-row sm:items-end">
+
                 <!-- Search -->
                 <div class="flex-1">
-                    <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        Cari
-                    </label>
+                    <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Cari</label>
                     <input type="text" name="search" value="{{ request('search') }}"
-                        placeholder="Cari berdasarkan nama atau kode..."
+                        placeholder="Cari nama atau singkatan..."
                         class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:placeholder-gray-500">
                 </div>
 
-                <!-- Level Filter -->
-                <div class="w-full sm:w-48">
-                    <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        Level
-                    </label>
+                <!-- OPD Filter (Select2) -->
+                <div class="w-full sm:w-64 select2-filter-sm">
+                    <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">OPD</label>
+                    <select name="opd_id" id="filterOpdId" style="width:100%">
+                        <option value=""></option>
+                        @foreach ($opds as $opd)
+                            <option value="{{ $opd->id }}" {{ request('opd_id') == $opd->id ? 'selected' : '' }}>
+                                {{ $opd->code }} – {{ $opd->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <!-- Bidang/Sekretariat Filter -->
+                <div class="w-full sm:w-52">
+                    <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Bidang/Sekretariat</label>
                     <select name="level"
-                        class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
-                        <option value="">All Levels</option>
-                        <option value="1" {{ request('level') == '1' ? 'selected' : '' }}>Provinsi</option>
-                        <option value="2" {{ request('level') == '2' ? 'selected' : '' }}>Kab/Kota</option>
-                        <option value="3" {{ request('level') == '3' ? 'selected' : '' }}>Kecamatan</option>
-                        <option value="4" {{ request('level') == '4' ? 'selected' : '' }}>Kelurahan/Desa</option>
+                        class="h-[38px] w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
+                        <option value="">Semua</option>
+                        <option value="1" {{ request('level') == '1' ? 'selected' : '' }}>Bidang / Sekretariat</option>
+                        <option value="2" {{ request('level') == '2' ? 'selected' : '' }}>Sub Bidang / Sub Bagian
+                        </option>
                     </select>
                 </div>
 
                 <!-- Buttons -->
                 <div class="flex gap-2">
                     <button type="submit"
-                        class="inline-flex items-center justify-center rounded-lg bg-gray-800 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:bg-gray-700 dark:hover:bg-gray-600">
+                        class="inline-flex items-center justify-center rounded-lg bg-gray-800 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-gray-900 dark:bg-gray-700 dark:hover:bg-gray-600">
                         Filter
                     </button>
-                    <a href="{{ route('regions.index') }}"
-                        class="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">
+                    <a href="{{ route('bidang-dinas.index') }}"
+                        class="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">
                         Reset
                     </a>
                 </div>
@@ -74,68 +85,60 @@
             <table class="w-full text-left text-sm">
                 <thead class="border-b border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-900/50">
                     <tr>
-                        <th class="px-5 py-3 font-semibold text-gray-700 dark:text-gray-300 xl:px-10">Kode</th>
-                        <th class="px-5 py-3 font-semibold text-gray-700 dark:text-gray-300">Nama</th>
-                        <th class="px-5 py-3 font-semibold text-gray-700 dark:text-gray-300">Level</th>
+                        <th class="px-5 py-3 font-semibold text-gray-700 dark:text-gray-300 xl:px-10">Nama Bidang</th>
+                        <th class="px-5 py-3 font-semibold text-gray-700 dark:text-gray-300">Singkatan</th>
+                        <th class="px-5 py-3 font-semibold text-gray-700 dark:text-gray-300">Bidang/Sekretariat</th>
+                        <th class="px-5 py-3 font-semibold text-gray-700 dark:text-gray-300">OPD</th>
                         <th class="px-5 py-3 font-semibold text-gray-700 dark:text-gray-300">Induk</th>
-                        <th class="px-5 py-3 font-semibold text-gray-700 dark:text-gray-300">Created</th>
-                        <th class="px-5 py-3 text-right font-semibold text-gray-700 dark:text-gray-300 xl:px-10">Aksi
-                        </th>
+                        <th class="px-5 py-3 text-right font-semibold text-gray-700 dark:text-gray-300 xl:px-10">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
-                    @forelse($regions as $region)
+                    @forelse($bidangDinas as $bidang)
                         <tr class="transition-colors hover:bg-gray-50 dark:hover:bg-gray-900/30">
-                            <td class="px-5 py-4 font-mono text-xs text-gray-600 dark:text-gray-400 xl:px-10">
-                                {{ $region->code }}
+                            <td class="px-5 py-4 xl:px-10">
+                                <div class="font-medium text-gray-900 dark:text-white">{{ $bidang->name }}</div>
                             </td>
-                            <td class="px-5 py-4">
-                                <span class="font-medium text-gray-900 dark:text-white">{{ $region->name }}</span>
+                            <td class="px-5 py-4 text-gray-600 dark:text-gray-400">
+                                {{ $bidang->abbreviation ?? '-' }}
                             </td>
                             <td class="px-5 py-4">
                                 @php
                                     $levelConfig = [
                                         1 => [
-                                            'label' => 'Provinsi',
+                                            'label' => 'Bidang / Sekretariat',
                                             'class' =>
                                                 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400',
                                         ],
                                         2 => [
-                                            'label' => 'Kab/Kota',
+                                            'label' => 'Sub Bidang / Sub Bagian',
                                             'class' =>
                                                 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
                                         ],
-                                        3 => [
-                                            'label' => 'Kecamatan',
-                                            'class' =>
-                                                'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
-                                        ],
-                                        4 => [
-                                            'label' => 'Kelurahan/Desa',
-                                            'class' =>
-                                                'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400',
-                                        ],
                                     ];
-                                    $config = $levelConfig[$region->level] ?? [
-                                        'label' => 'Unknown',
+                                    $cfg = $levelConfig[$bidang->level] ?? [
+                                        'label' => 'Tidak Diketahui',
                                         'class' => 'bg-gray-100 text-gray-700',
                                     ];
                                 @endphp
                                 <span
-                                    class="inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium {{ $config['class'] }}">
-                                    {{ $config['label'] }}
+                                    class="inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium {{ $cfg['class'] }}">
+                                    {{ $cfg['label'] }}
                                 </span>
                             </td>
                             <td class="px-5 py-4 text-gray-600 dark:text-gray-400">
-                                {{ $region->parent?->name ?? '-' }}
+                                <div class="text-sm">{{ $bidang->opd->name ?? '-' }}</div>
+                                @if ($bidang->opd)
+                                    <div class="text-xs text-gray-400 font-mono">{{ $bidang->opd->code }}</div>
+                                @endif
                             </td>
                             <td class="px-5 py-4 text-gray-600 dark:text-gray-400">
-                                {{ $region->created_at->format('d M Y') }}
+                                {{ $bidang->parent?->name ?? '-' }}
                             </td>
                             <td class="px-5 py-4 xl:px-10">
                                 <div class="flex items-center justify-end gap-2">
-                                    @can('edit-regions')
-                                        <button type="button" onclick="openEditModal('{{ $region->id }}')"
+                                    @can('edit-bidang-dinas')
+                                        <button type="button" onclick="openEditModal('{{ $bidang->id }}')"
                                             class="inline-flex items-center justify-center rounded-lg p-2 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-200"
                                             title="Edit">
                                             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -145,10 +148,10 @@
                                         </button>
                                     @endcan
 
-                                    @can('delete-regions')
-                                        <button type="button" onclick="deleteRegion('{{ $region->id }}')"
+                                    @can('delete-bidang-dinas')
+                                        <button type="button" onclick="deleteBidang('{{ $bidang->id }}')"
                                             class="inline-flex items-center justify-center rounded-lg p-2 text-red-500 transition-colors hover:bg-red-50 hover:text-red-700 dark:text-red-400 dark:hover:bg-red-900/20 dark:hover:text-red-300"
-                                            title="Delete">
+                                            title="Hapus">
                                             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                     d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -165,12 +168,12 @@
                                     <svg class="h-12 w-12 text-gray-400 dark:text-gray-600" fill="none"
                                         stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                                            d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                                     </svg>
-                                    <p class="mt-3 text-sm font-medium text-gray-900 dark:text-white">Tidak ada wilayah yang
-                                        ditemukan</p>
+                                    <p class="mt-3 text-sm font-medium text-gray-900 dark:text-white">Belum ada bidang dinas
+                                    </p>
                                     <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Mulai dengan menambahkan
-                                        wilayah baru</p>
+                                        bidang baru.</p>
                                 </div>
                             </td>
                         </tr>
@@ -180,16 +183,15 @@
         </div>
 
         <!-- Pagination -->
-        @if ($regions->hasPages())
+        @if ($bidangDinas->hasPages())
             <div class="border-t border-gray-200 px-5 py-4 dark:border-gray-800 xl:px-10">
-                {{ $regions->links() }}
+                {{ $bidangDinas->links() }}
             </div>
         @endif
     </div>
 
     <!-- Create/Edit Modal -->
-    <div id="regionModal" class="fixed inset-0 hidden items-center justify-center overflow-y-auto z-99999" role="dialog"
-        aria-modal="true">
+    <div class="fixed inset-0 items-center justify-center hidden p-5 overflow-y-auto z-99999" id="bidangModal">
         <div class="fixed inset-0 h-full w-full bg-gray-400/50 backdrop-blur-[32px]" onclick="closeModal()"></div>
         <div
             class="relative w-full max-w-lg flex flex-col overflow-y-auto rounded-3xl bg-white p-6 lg:p-10 dark:bg-gray-900">
@@ -203,7 +205,7 @@
                 </svg>
             </button>
 
-            <form id="regionForm" method="POST">
+            <form id="bidangForm" method="POST">
                 @csrf
                 <input type="hidden" name="_method" id="formMethod" value="POST">
 
@@ -211,57 +213,73 @@
                 <div>
                     <h5 class="mb-2 font-semibold text-gray-800 text-theme-xl lg:text-2xl dark:text-white/90"
                         id="modal-title">
-                        Tambah Wilayah Baru
+                        Tambah Bidang Dinas
                     </h5>
                     <p class="text-sm text-gray-500 dark:text-gray-400">
-                        Tambah atau ubah data wilayah
+                        Tambah atau ubah data bidang dinas
                     </p>
                 </div>
 
                 <!-- Modal Body -->
                 <div class="mt-8 space-y-5">
-                    <!-- Level -->
+
+                    <!-- OPD (Select2) -->
+                    <div>
+                        <label for="opd_id" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                            OPD <span class="text-red-500">*</span>
+                        </label>
+                        <select name="opd_id" id="opd_id" required style="width:100%">
+                            <option value=""></option>
+                            @foreach ($opds as $opd)
+                                <option value="{{ $opd->id }}">{{ $opd->code }} – {{ $opd->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <!-- Bidang/Sekretariat -->
                     <div>
                         <label for="level" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                            Level <span class="text-red-500">*</span>
+                            Bidang/Sekretariat <span class="text-red-500">*</span>
                         </label>
                         <select name="level" id="level" required
                             class="shadow-theme-xs h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 focus:border-blue-500 focus:ring-3 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90">
                             <option value="">Pilih Level</option>
-                            <option value="1">Provinsi</option>
-                            <option value="2">Kab/Kota</option>
-                            <option value="3">Kecamatan</option>
-                            <option value="4">Kelurahan/Desa</option>
+                            <option value="1">Bidang / Sekretariat</option>
+                            <option value="2">Sub Bidang / Sub Bagian</option>
                         </select>
                     </div>
 
-                    <!-- Parent (Select2) -->
-                    <div>
+                    <!-- Parent (muncul hanya jika level 2) -->
+                    <div id="parentWrapper" class="hidden">
                         <label for="parent_id" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                            Induk
+                            Bidang Induk <span class="text-red-500">*</span>
                         </label>
-                        <select name="parent_id" id="parent_id" style="width:100%">
-                            <option value=""></option>
+                        <select name="parent_id" id="parent_id"
+                            class="shadow-theme-xs h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 focus:border-blue-500 focus:ring-3 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90">
+                            <option value="">Pilih Bidang Induk</option>
                         </select>
                     </div>
 
-                    <!-- Code -->
-                    <div>
-                        <label for="code" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                            Kode <span class="text-red-500">*</span>
-                        </label>
-                        <input type="text" name="code" id="code" required placeholder="e.g., 33"
-                            class="shadow-theme-xs h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:ring-3 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30">
-                    </div>
-
-                    <!-- Name -->
+                    <!-- Nama -->
                     <div>
                         <label for="name" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                            Nama <span class="text-red-500">*</span>
+                            Nama Bidang <span class="text-red-500">*</span>
                         </label>
-                        <input type="text" name="name" id="name" required placeholder="e.g., Jawa Tengah"
+                        <input type="text" name="name" id="name" required
+                            placeholder="Contoh: Bidang Pengelolaan Sampah"
                             class="shadow-theme-xs h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:ring-3 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30">
                     </div>
+
+                    <!-- Singkatan -->
+                    <div>
+                        <label for="abbreviation"
+                            class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                            Singkatan <span class="text-xs text-gray-400">(opsional)</span>
+                        </label>
+                        <input type="text" name="abbreviation" id="abbreviation" placeholder="Contoh: BPS"
+                            class="shadow-theme-xs h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-blue-500 focus:ring-3 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30">
+                    </div>
+
                 </div>
 
                 <!-- Modal Footer -->
@@ -272,7 +290,7 @@
                     </button>
                     <button type="submit"
                         class="flex w-full justify-center rounded-lg bg-blue-600 hover:bg-blue-700 px-4 py-2.5 text-sm font-medium text-white sm:w-auto">
-                        Simpan Wilayah
+                        Simpan
                     </button>
                 </div>
             </form>
@@ -295,6 +313,26 @@
             background-color: transparent;
             display: flex;
             align-items: center;
+        }
+
+        /* Filter area: height lebih kecil supaya sejajar dengan input filter */
+        .select2-filter-sm .select2-container--default .select2-selection--single {
+            height: 38px;
+        }
+
+        .select2-filter-sm .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 38px;
+        }
+
+        .select2-filter-sm .select2-container--default .select2-selection--single .select2-selection__rendered {
+            padding-left: 1rem;
+            padding-right: 2rem;
+            font-size: 0.875rem;
+            line-height: 38px;
+        }
+
+        .select2-filter-sm .select2-container--default .select2-selection--single .select2-selection__clear {
+            top: 50%;
         }
 
         .select2-container--default .select2-selection--single .select2-selection__rendered {
@@ -343,8 +381,8 @@
 
         .select2-container--default.select2-container--open .select2-selection--single,
         .select2-container--default.select2-container--focus .select2-selection--single {
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+            border-color: #465fff;
+            box-shadow: 0px 0px 0px 4px rgba(70, 95, 255, 0.12);
             outline: none;
         }
 
@@ -374,7 +412,7 @@
         }
 
         .select2-container--default .select2-search--dropdown .select2-search__field:focus {
-            border-color: #3b82f6;
+            border-color: #465fff;
         }
 
         .select2-results__options {
@@ -390,20 +428,13 @@
         }
 
         .select2-container--default .select2-results__option--highlighted[aria-selected] {
-            background-color: #3b82f6;
+            background-color: #465fff;
             color: #fff;
         }
 
         .select2-container--default .select2-results__option[aria-selected="true"] {
-            background-color: #eff6ff;
-            color: #1d4ed8;
-        }
-
-        /* Disabled state */
-        .select2-container--default.select2-container--disabled .select2-selection--single {
-            background-color: #f3f4f6;
-            cursor: not-allowed;
-            opacity: 0.7;
+            background-color: #f2f7ff;
+            color: #465fff;
         }
 
         /* ===== Dark mode ===== */
@@ -422,12 +453,7 @@
 
         .dark .select2-container--default.select2-container--open .select2-selection--single,
         .dark .select2-container--default.select2-container--focus .select2-selection--single {
-            border-color: #3b82f6;
-        }
-
-        .dark .select2-container--default.select2-container--disabled .select2-selection--single {
-            background-color: #1f2937;
-            opacity: 0.5;
+            border-color: #465fff;
         }
 
         .dark .select2-dropdown {
@@ -452,7 +478,7 @@
         }
 
         .dark .select2-container--default .select2-results__option--highlighted[aria-selected] {
-            background-color: #3b82f6;
+            background-color: #465fff;
             color: #fff;
         }
 
@@ -473,85 +499,39 @@
     <script>
         // ============ INIT SELECT2 ============
         function initSelect2() {
-            $('#parent_id').select2({
-                placeholder: 'Tanpa Induk (Root Level)',
+            // Select2 di filter (tanpa dropdownParent agar dropdown tidak terpotong)
+            $('#filterOpdId').select2({
+                placeholder: 'Semua OPD',
                 allowClear: true,
-                dropdownParent: $('#regionModal'),
                 language: {
-                    noResults: () => 'Wilayah tidak ditemukan',
+                    noResults: () => 'OPD tidak ditemukan',
                     searching: () => 'Mencari...',
                 },
             });
-        }
 
-        // ============ FUNGSI: Update Select2 options ============
-        function updateParentSelect2(data, selectedId = null) {
-            const $parent = $('#parent_id');
-
-            // Kosongkan lalu isi ulang
-            $parent.empty();
-            $parent.append(new Option('', '', false, false));
-
-            data.forEach(region => {
-                const text = `${region.code} – ${region.name}`;
-                const isSelected = selectedId && region.id == selectedId;
-                $parent.append(new Option(text, region.id, false, isSelected));
-            });
-
-            $parent.trigger('change.select2');
-        }
-
-        function resetParentSelect2(placeholder) {
-            const $parent = $('#parent_id');
-            $parent.empty();
-            $parent.append(new Option('', '', false, false));
-            $parent.trigger('change.select2');
-
-            // Update placeholder via Select2
-            $parent.data('select2') && $parent.select2('destroy');
-            $parent.select2({
-                placeholder: placeholder || 'Tanpa Induk (Root Level)',
+            // Select2 di modal
+            $('#opd_id').select2({
+                placeholder: 'Cari atau pilih OPD...',
                 allowClear: true,
-                dropdownParent: $('#regionModal'),
+                dropdownParent: $('#bidangModal'),
                 language: {
-                    noResults: () => 'Wilayah tidak ditemukan',
+                    noResults: () => 'OPD tidak ditemukan',
                     searching: () => 'Mencari...',
                 },
             });
-        }
 
-        function loadParents(level, selectedId = null) {
-            const $parent = $('#parent_id');
-
-            if (level == 1 || level == '') {
-                resetParentSelect2('Tanpa Induk (Root Level)');
-                $parent.prop('disabled', true).trigger('change.select2');
-                return;
-            }
-
-            // Loading state
-            $parent.prop('disabled', true);
-            resetParentSelect2('Memuat...');
-
-            fetch(`{{ route('regions.get-parents') }}?level=${level}`)
-                .then(r => r.json())
-                .then(data => {
-                    resetParentSelect2('Pilih Induk');
-                    updateParentSelect2(data, selectedId);
-                    $parent.prop('disabled', false);
-                })
-                .catch(() => {
-                    resetParentSelect2('Gagal memuat data');
-                    $parent.prop('disabled', false);
-                });
+            // Sync perubahan Select2 modal → trigger loadParents
+            $('#opd_id').on('change', function() {
+                const level = parseInt($('#level').val());
+                if (level === 2) {
+                    loadParents(this.value);
+                }
+            });
         }
 
         document.addEventListener('DOMContentLoaded', function() {
 
             initSelect2();
-
-            // Disable parent by default (level belum dipilih)
-            $('#parent_id').prop('disabled', true);
 
             // ============ SESSION ALERTS ============
             @if (session('success'))
@@ -571,7 +551,7 @@
                     title: 'Gagal!',
                     text: @json(session('error')),
                     confirmButtonText: 'OK',
-                    confirmButtonColor: '#3B82F6'
+                    confirmButtonColor: '#465FFF'
                 });
             @endif
 
@@ -581,95 +561,168 @@
                     title: 'Gagal Menghapus!',
                     text: @json($errors->first('delete')),
                     confirmButtonText: 'OK',
-                    confirmButtonColor: '#3B82F6'
+                    confirmButtonColor: '#465FFF'
                 });
             @endif
 
-            // ============ BUKA MODAL OTOMATIS JIKA ADA VALIDATION ERROR ============
+            // ============ BUKA MODAL JIKA ADA VALIDATION ERROR ============
             @if ($errors->any() && !$errors->has('delete'))
                 openCreateModal();
+                // Set Select2 value
+                $('#opd_id').val('{{ old('opd_id') }}').trigger('change.select2');
                 document.getElementById('level').value = '{{ old('level') }}';
-                document.getElementById('code').value = '{{ old('code') }}';
                 document.getElementById('name').value = '{{ old('name') }}';
+                document.getElementById('abbreviation').value = '{{ old('abbreviation') }}';
 
-                @if (old('level'))
-                    loadParents('{{ old('level') }}', '{{ old('parent_id') }}');
+                @if (old('level') == 2)
+                    toggleParentField(2);
+                    loadParents('{{ old('opd_id') }}', '{{ old('parent_id') }}');
+                @else
+                    toggleParentField(parseInt('{{ old('level') }}') || 0);
                 @endif
             @endif
 
             // ============ BUTTON TAMBAH ============
-            const btnAddRegion = document.getElementById('btnAddRegion');
-            if (btnAddRegion) {
-                btnAddRegion.addEventListener('click', openCreateModal);
-            }
+            const btnAdd = document.getElementById('btnAddBidang');
+            if (btnAdd) btnAdd.addEventListener('click', openCreateModal);
 
             // ============ LEVEL CHANGE ============
             document.getElementById('level').addEventListener('change', function() {
-                loadParents(this.value);
+                const level = parseInt(this.value);
+                const opdId = $('#opd_id').val();
+                toggleParentField(level);
+                if (level === 2 && opdId) {
+                    loadParents(opdId);
+                } else {
+                    resetParentSelect();
+                }
             });
 
-            // ============ EVENT LISTENERS MODAL ============
+            // ============ MODAL KEYBOARD ============
             document.addEventListener('keydown', function(e) {
                 if (e.key === 'Escape') closeModal();
             });
-
-        }); // end DOMContentLoaded
+        });
 
         // ============ FUNGSI GLOBAL ============
+
+        function toggleParentField(level) {
+            const wrapper = document.getElementById('parentWrapper');
+            if (level === 2) {
+                wrapper.classList.remove('hidden');
+            } else {
+                wrapper.classList.add('hidden');
+                document.getElementById('parent_id').value = '';
+            }
+        }
+
+        function resetParentSelect() {
+            const sel = document.getElementById('parent_id');
+            sel.innerHTML = '<option value="">Pilih Bidang Induk</option>';
+            sel.disabled = false;
+        }
+
+        function loadParents(opdId, selectedId = null) {
+            const sel = document.getElementById('parent_id');
+            sel.innerHTML = '<option value="">Memuat...</option>';
+            sel.disabled = true;
+
+            if (!opdId) {
+                resetParentSelect();
+                return;
+            }
+
+            fetch(`{{ route('bidang-dinas.get-parents') }}?opd_id=${opdId}`)
+                .then(r => r.json())
+                .then(data => {
+                    sel.innerHTML = '<option value="">Pilih Bidang Induk</option>';
+                    data.forEach(item => {
+                        const opt = document.createElement('option');
+                        opt.value = item.id;
+                        opt.textContent = item.abbreviation ?
+                            `${item.name} (${item.abbreviation})` :
+                            item.name;
+                        if (selectedId && item.id === selectedId) opt.selected = true;
+                        sel.appendChild(opt);
+                    });
+                    sel.disabled = false;
+                })
+                .catch(() => {
+                    sel.innerHTML = '<option value="">Gagal memuat data</option>';
+                    sel.disabled = false;
+                });
+        }
+
         function openCreateModal() {
-            document.getElementById('modal-title').textContent = 'Tambah Wilayah Baru';
-            document.getElementById('regionForm').action = '{{ route('regions.store') }}';
+            document.getElementById('modal-title').textContent = 'Tambah Bidang Dinas';
+            document.getElementById('bidangForm').action = '{{ route('bidang-dinas.store') }}';
             document.getElementById('formMethod').value = 'POST';
-            document.getElementById('regionForm').reset();
-            resetParentSelect2('Tanpa Induk (Root Level)');
-            $('#parent_id').prop('disabled', true);
+            document.getElementById('bidangForm').reset();
+            $('#opd_id').val(null).trigger('change.select2'); // reset Select2
+            toggleParentField(0);
             showModal();
         }
 
         function openEditModal(id) {
-            fetch(`/regions/${id}/edit`)
-                .then(response => response.json())
+            fetch(`/bidang-dinas/${id}/edit`)
+                .then(r => r.json())
                 .then(data => {
-                    document.getElementById('modal-title').textContent = 'Edit Wilayah';
-                    document.getElementById('regionForm').action = `/regions/${id}`;
-                    document.getElementById('formMethod').value = 'PUT';
-                    document.getElementById('level').value = data.level;
-                    document.getElementById('code').value = data.code;
-                    document.getElementById('name').value = data.name;
+                    console.log('Edit data:', data); // Debug: lihat data di console
 
-                    // Load parents lalu set selected
-                    loadParents(data.level, data.parent_id);
+                    document.getElementById('modal-title').textContent = 'Edit Bidang Dinas';
+                    document.getElementById('bidangForm').action = `/bidang-dinas/${id}`;
+                    document.getElementById('formMethod').value = 'PUT';
+
+                    // Set form values
+                    document.getElementById('level').value = data.level;
+                    document.getElementById('name').value = data.name;
+                    document.getElementById('abbreviation').value = data.abbreviation || '';
+
+                    // Set Select2 OPD — pastikan option ada sebelum set value
+                    const $opd = $('#opd_id');
+                    if ($opd.find(`option[value="${data.opd_id}"]`).length) {
+                        $opd.val(data.opd_id).trigger('change.select2');
+                    } else {
+                        // Jika option belum ada (misalnya dynamic), tambahkan dulu
+                        $opd.val(data.opd_id).trigger('change.select2');
+                    }
+
+                    // Toggle parent field
+                    toggleParentField(parseInt(data.level));
+                    if (data.level == 2 && data.opd_id) {
+                        loadParents(data.opd_id, data.parent_id);
+                    }
 
                     showModal();
                 })
-                .catch(error => {
-                    console.error('Error:', error);
+                .catch((err) => {
+                    console.error('Error:', err);
                     Swal.fire({
                         icon: 'error',
                         title: 'Gagal Memuat Data',
-                        text: 'Terjadi kesalahan saat memuat data wilayah'
+                        text: 'Terjadi kesalahan saat memuat data bidang dinas.'
                     });
                 });
         }
 
         function showModal() {
-            const modal = document.getElementById('regionModal');
+            const modal = document.getElementById('bidangModal');
             modal.classList.remove('hidden');
             modal.classList.add('flex');
             document.body.classList.add('overflow-hidden');
         }
 
         function closeModal() {
-            const modal = document.getElementById('regionModal');
+            const modal = document.getElementById('bidangModal');
             modal.classList.add('hidden');
             modal.classList.remove('flex');
             document.body.classList.remove('overflow-hidden');
         }
 
-        function deleteRegion(id) {
+        function deleteBidang(id) {
             Swal.fire({
-                title: 'Hapus Wilayah?',
-                text: 'Wilayah ini akan dihapus permanen dan tidak bisa dikembalikan!',
+                title: 'Hapus Bidang Dinas?',
+                text: 'Data ini akan dihapus permanen dan tidak bisa dikembalikan!',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#d92d20',
@@ -680,7 +733,7 @@
                 if (result.isConfirmed) {
                     const form = document.createElement('form');
                     form.method = 'POST';
-                    form.action = `/regions/${id}`;
+                    form.action = `/bidang-dinas/${id}`;
                     form.innerHTML = `@csrf @method('DELETE')`;
                     document.body.appendChild(form);
                     form.submit();
