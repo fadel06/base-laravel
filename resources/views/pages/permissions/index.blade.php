@@ -16,13 +16,13 @@
                     </p>
                 </div>
                 @can('create-permissions')
-                    <a href="{{ route('permissions.create') }}"
+                    <button type="button" id="btnAddPermission"
                         class="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
                         <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                         </svg>
                         Tambah Hak Akses
-                    </a>
+                    </button>
                 @endcan
             </div>
         </div>
@@ -93,16 +93,15 @@
                             <td class="px-5 py-4 xl:px-10">
                                 <div class="flex items-center justify-end gap-2">
                                     @can('edit-permissions')
-                                        <a href="{{ route('permissions.edit', $permission) }}"
+                                        <button type="button" onclick="openEditModal('{{ $permission->id }}')"
                                             class="inline-flex items-center justify-center rounded-lg p-2 text-yellow-600 transition-colors hover:bg-yellow-50 dark:text-yellow-400 dark:hover:bg-yellow-900/20"
                                             title="Edit">
                                             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                     d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                             </svg>
-                                        </a>
+                                        </button>
                                     @endcan
-
                                     @can('delete-permissions')
                                         <button type="button" onclick="deletePermission('{{ $permission->id }}')"
                                             class="inline-flex items-center justify-center rounded-lg p-2 text-red-600 transition-colors hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20"
@@ -133,14 +132,14 @@
                                     <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Mulai dengan menambahkan hak
                                         akses baru</p>
                                     @can('create-permissions')
-                                        <a href="{{ route('permissions.create') }}"
+                                        <button type="button" onclick="openCreateModal()"
                                             class="mt-4 inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700">
                                             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                     d="M12 4v16m8-8H4" />
                                             </svg>
                                             Tambah Hak Akses
-                                        </a>
+                                        </button>
                                     @endcan
                                 </div>
                             </td>
@@ -156,12 +155,78 @@
             </div>
         @endif
     </div>
+
+    <!-- Create/Edit Modal -->
+    <div id="permissionModal"
+        class="fixed inset-0 z-50 hidden items-center justify-center bg-gray-900/50 backdrop-blur-sm" role="dialog"
+        aria-modal="true">
+        <div class="relative mx-4 w-full max-w-md rounded-lg bg-white shadow-xl dark:bg-gray-800">
+            <form id="permissionForm" method="POST">
+                @csrf
+                <input type="hidden" name="_method" id="formMethod" value="POST">
+
+                <!-- Modal Header -->
+                <div class="flex items-center justify-between border-b border-gray-200 px-6 py-4 dark:border-gray-700">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white" id="modal-title">
+                        Tambah Hak Akses
+                    </h3>
+                    <button type="button" onclick="closeModal()"
+                        class="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-700 dark:hover:text-white">
+                        <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd"
+                                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Modal Body -->
+                <div class="space-y-4 px-6 py-4">
+                    <!-- Name -->
+                    <div>
+                        <label for="name" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                            Nama Hak Akses <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" name="name" id="name" required placeholder="Contoh: create-users"
+                            class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:placeholder-gray-500">
+                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Gunakan format kebab-case, contoh: <span
+                                class="font-mono">view-users</span>, <span class="font-mono">create-reports</span></p>
+                    </div>
+
+                    <!-- Guard Name -->
+                    <div>
+                        <label for="guard_name" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                            Guard Name <span class="text-red-500">*</span>
+                        </label>
+                        <select name="guard_name" id="guard_name" required
+                            class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white">
+                            <option value="web">web</option>
+                            <option value="api">api</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Modal Footer -->
+                <div class="flex items-center justify-end gap-3 border-t border-gray-200 px-6 py-4 dark:border-gray-700">
+                    <button type="button" onclick="closeModal()"
+                        class="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600">
+                        Batal
+                    </button>
+                    <button type="submit"
+                        class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        Simpan
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 @endsection
 
 @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function() {
 
+            // ============ SESSION ALERTS ============
             @if (session('success'))
                 Swal.fire({
                     icon: 'success',
@@ -181,7 +246,71 @@
                 });
             @endif
 
+            // ============ BUKA MODAL JIKA ADA VALIDATION ERROR ============
+            @if ($errors->any())
+                openCreateModal();
+                document.getElementById('name').value = '{{ old('name') }}';
+                document.getElementById('guard_name').value = '{{ old('guard_name', 'web') }}';
+            @endif
+
+            // ============ BUTTON TAMBAH ============
+            const btnAdd = document.getElementById('btnAddPermission');
+            if (btnAdd) {
+                btnAdd.addEventListener('click', openCreateModal);
+            }
+
+            // ============ EVENT LISTENERS MODAL ============
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') closeModal();
+            });
+
+            document.getElementById('permissionModal').addEventListener('click', function(e) {
+                if (e.target === this) closeModal();
+            });
+
         });
+
+        // ============ FUNGSI GLOBAL ============
+        function openCreateModal() {
+            document.getElementById('modal-title').textContent = 'Tambah Hak Akses';
+            document.getElementById('permissionForm').action = '{{ route('permissions.store') }}';
+            document.getElementById('formMethod').value = 'POST';
+            document.getElementById('permissionForm').reset();
+            document.getElementById('guard_name').value = 'web';
+            showModal();
+        }
+
+        function openEditModal(id) {
+            fetch(`/permissions/${id}/edit`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('modal-title').textContent = 'Edit Hak Akses';
+                    document.getElementById('permissionForm').action = `/permissions/${id}`;
+                    document.getElementById('formMethod').value = 'PUT';
+                    document.getElementById('name').value = data.name;
+                    document.getElementById('guard_name').value = data.guard_name;
+                    showModal();
+                })
+                .catch(() => {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal Memuat Data',
+                        text: 'Terjadi kesalahan saat memuat data hak akses.'
+                    });
+                });
+        }
+
+        function showModal() {
+            const modal = document.getElementById('permissionModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('permissionModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
 
         function deletePermission(id) {
             Swal.fire({

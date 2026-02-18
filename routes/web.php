@@ -42,7 +42,7 @@ Route::middleware(['auth', 'prevent.back.history'])->group(function () {
     Route::resource('roles', RoleController::class);
 
     //Permission
-    Route::resource('permissions', PermissionController::class);
+    Route::resource('permissions', PermissionController::class)->except(['create', 'show']);
 
     // Activity Logs
     Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');

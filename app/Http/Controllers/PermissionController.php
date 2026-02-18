@@ -10,7 +10,7 @@ class PermissionController extends Controller
     public function __construct()
     {
         $this->middleware('permission:view-permissions')->only(['index', 'show']);
-        $this->middleware('permission:create-permissions')->only(['create', 'store']);
+        $this->middleware('permission:create-permissions')->only(['store']);
         $this->middleware('permission:edit-permissions')->only(['edit', 'update']);
         $this->middleware('permission:delete-permissions')->only('destroy');
     }
@@ -20,21 +20,12 @@ class PermissionController extends Controller
         $query = Permission::query();
 
         if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where('name', 'like', '%' . $search . '%');
+            $query->where('name', 'like', '%' . $request->search . '%');
         }
 
         $permissions = $query->orderBy('name', 'asc')->paginate(15)->withQueryString();
 
         return view('pages.permissions.index', compact('permissions'));
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        return view('pages.permissions.create');
     }
 
     /**
@@ -60,19 +51,15 @@ class PermissionController extends Controller
     }
 
     /**
-     * Display the specified resource.
-     */
-    public function show(Permission $permission)
-    {
-        return view('pages.permissions.show', compact('permission'));
-    }
-
-    /**
-     * Show the form for editing the specified resource.
+     * Show the form for editing the specified resource (AJAX).
      */
     public function edit(Permission $permission)
     {
-        return view('pages.permissions.edit', compact('permission'));
+        return response()->json([
+            'id'         => $permission->id,
+            'name'       => $permission->name,
+            'guard_name' => $permission->guard_name,
+        ]);
     }
 
     /**
