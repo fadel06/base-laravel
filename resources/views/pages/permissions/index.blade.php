@@ -158,8 +158,8 @@
 
     <!-- Create/Edit Modal -->
     <div id="permissionModal"
-        class="fixed inset-0 z-50 hidden items-center justify-center bg-gray-900/50 backdrop-blur-sm" role="dialog"
-        aria-modal="true">
+        class="fixed inset-0 hidden items-center justify-center bg-gray-900/50 backdrop-blur-sm overflow-y-auto modal z-99999"
+        role="dialog" aria-modal="true">
         <div class="relative mx-4 w-full max-w-md rounded-lg bg-white shadow-xl dark:bg-gray-800">
             <form id="permissionForm" method="POST">
                 @csrf

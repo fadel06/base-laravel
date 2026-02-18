@@ -204,7 +204,7 @@
     </div>
 
     <!-- Create/Edit Modal -->
-    <div id="opdModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-gray-900/50 backdrop-blur-sm"
+    <div id="opdModal" class="fixed inset-0 hidden items-center justify-center bg-gray-900/50 backdrop-blur-sm overflow-y-auto modal z-99999"
         role="dialog" aria-modal="true">
         <div class="relative mx-4 w-full max-w-2xl rounded-lg bg-white shadow-xl dark:bg-gray-800">
             <form id="opdForm" method="POST">

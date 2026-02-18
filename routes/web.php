@@ -51,9 +51,9 @@ Route::middleware(['auth', 'prevent.back.history'])->group(function () {
 });
 
 // // calender pages
-// Route::get('/calendar', function () {
-//     return view('pages.calender', ['title' => 'Calendar']);
-// })->name('calendar');
+Route::get('/calendar', function () {
+    return view('pages.calender', ['title' => 'Calendar']);
+})->name('calendar');
 
 // // profile pages
 // Route::get('/profile', function () {
